@@ -3,7 +3,7 @@ from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Group, GroupMember
 from .forms import createGroupForm
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
 
@@ -61,6 +61,14 @@ class deleteGroup(LoginRequiredMixin, generic.DeleteView):
     model = Group
     template_name = 'groups/delete_group.html'
     success_url = reverse_lazy('groups:listGroup')
+
+    # For authenticating and avoiding csrf_token hijacking
+    def post(self, request, slug):
+        if(request.user == Group.objects.get(slug=slug).admin):
+            super().post(request, slug)
+            return HttpResponseRedirect(self.success_url)
+        else:
+            raise Http404
 
 
 @login_required

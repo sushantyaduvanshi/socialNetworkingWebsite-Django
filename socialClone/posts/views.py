@@ -4,7 +4,7 @@ from .models import Post
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import newPostForm
 from django import forms
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 
@@ -55,3 +55,11 @@ class deletePost(LoginRequiredMixin, generic.DeleteView):
     model = Post
     template_name = 'posts/delete_post.html'
     success_url = reverse_lazy('posts:listPosts')
+
+    # For authenticating and avoiding csrf_token hijacking
+    def post(self, request, pk):
+        if(request.user == Post.objects.get(pk=pk).publisher):
+            super().post(request, pk)
+            return HttpResponseRedirect(self.success_url)
+        else:
+            raise Http404

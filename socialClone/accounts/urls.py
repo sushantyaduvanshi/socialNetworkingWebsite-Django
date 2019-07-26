@@ -9,3 +9,11 @@ urlpatterns=[
     path('login', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='loginPage'),
     path('logout', auth_views.LogoutView.as_view(template_name='accounts/logout.html'), name='logoutPage'),
 ]
+
+
+# from django.conf import settings
+# if settings.DEBUG:
+#     import debug_toolbar
+#     urlpatterns = [
+#         path('__debug__/', include(debug_toolbar.urls)),
+#     ] + urlpatterns
